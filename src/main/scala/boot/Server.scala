@@ -12,7 +12,8 @@ import scala.concurrent.duration.Duration
 
 object Server extends App with ResearchPapersController {
 
-  implicit override val actorSystem: ActorSystem = ActorSystem("AkkaHTTPResearchPapers")
+  implicit val actorSystem: ActorSystem = ActorSystem("AkkaHTTPResearchPapers")
+
   implicit val materializer = ActorMaterializer()
 
   lazy val apiRoutes: Route = pathPrefix("api") {

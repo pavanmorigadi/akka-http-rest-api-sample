@@ -31,39 +31,43 @@ trait ResearchPapersController extends ResearchPapersStorage with SprayJsonSuppo
     if (Authorization.isAuthorized(request).equals(false)) {
       complete(StatusCodes.Unauthorized, "provide valid user credentials")
     }
-    pathPrefix("research-papers") {
-      //GET-ALL
-      pathEndOrSingleSlash {
-        complete(getAllResearchPapers())
-      } ~
-        //GET BY ID
-        path(Segment) {
-          id: String =>
-            get {
-              onComplete(getResearchPaperById(id)) {
-                _ match {
-                  case Success(paper) =>
-                    logger.info(s"Got the research paper record for id(title) ${id}")
-                    complete(StatusCodes.OK, paper)
+    else {
+      pathPrefix("research-papers") {
+        //GET-ALL
+        pathEndOrSingleSlash {
+          get {
+            complete(getAllResearchPapers())
+          }
+        } ~
+          //GET BY ID
+          path(Segment) {
+            id: String =>
+              get {
+                onComplete(getResearchPaperById(id)) {
+                  _ match {
+                    case Success(paper) =>
+                      logger.info(s"Got the research paper record for id(title) ${id}")
+                      complete(StatusCodes.OK, paper)
 
-                  case Failure(throwable) =>
-                    logger.error(s"Failed to get the research paper record for id(title) ${id}")
-                    throwable match {
-                      case e: ResearchPaperNotFoundException => complete(StatusCodes.NotFound, "No research paper found")
-                      case _ => complete(StatusCodes.InternalServerError, "Failed to get the research paper.")
-                    }
+                    case Failure(throwable) =>
+                      logger.error(s"Failed to get the research paper record for id(title) ${id}")
+                      throwable match {
+                        case e: ResearchPaperNotFoundException => complete(StatusCodes.NotFound, "No research paper found")
+                        case _ => complete(StatusCodes.InternalServerError, "Failed to get the research paper.")
+                      }
+                  }
                 }
               }
-            }
-        } ~
-        path("search") {
-          post {
-            entity(as[Search]) {
-              searchObj =>
-                complete(searchResearchPapers(searchObj.title, searchObj.author, searchObj.startDate, searchObj.endDate, searchObj.containsText))
+          } ~
+          path("search") {
+            post {
+              entity(as[Search]) {
+                searchObj =>
+                  complete(searchResearchPapers(searchObj.title, searchObj.author, searchObj.startDate, searchObj.endDate, searchObj.containsText))
+              }
             }
           }
-        }
+      }
     }
   }
 }

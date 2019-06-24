@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object ResearchPapersStorage extends DefaultJsonProtocol {
   implicit val researchPaperJsonFormat = jsonFormat3(ResearchPaper)
@@ -29,9 +30,6 @@ object ResearchPapersStorage extends DefaultJsonProtocol {
 trait ResearchPapersStorage {
 
   import ResearchPapersStorage._
-
-  val actorSystem = ActorSystem("StorageContext")
-  implicit lazy val executionContext = actorSystem.dispatcher
 
   //Considering title as unique identifier
   def getResearchPaperById(title: String): Future[ResearchPaper] = {
@@ -57,7 +55,7 @@ trait ResearchPapersStorage {
       //contains logic to search based on search criteria
       //convert Date
       //returning dummy value for now
-      researchPapersDb
+      researchPapersDb.slice(0,2)
     }
   }
 }
